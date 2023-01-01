@@ -2,7 +2,7 @@ from tda.auth import easy_client
 from tda.client import Client
 from tda.streaming import StreamClient
 from datetime import datetime, timezone
-from tda.orders.equities import equity_buy_limit, equity_sell_limit
+from tda.orders.equities import equity_buy_limit, equity_sell_limit, equity_sell_short_limit, equity_buy_to_cover_limit
 from tda.orders.common import Duration
 
 import atexit
@@ -61,6 +61,24 @@ def sell_limit_order(amt, num_orders=1):
             .build()
     )
     print("sell order placed")
+
+def short_sell_limit_order(amt, num_orders=1):
+    client.place_order(
+        account_id=secret_keys.account_id,
+        order_spec=equity_sell_short_limit('META', num_orders, amt)
+            .set_duration(Duration.FILL_OR_KILL)
+            .build()
+    )
+    print("short sell order placed")
+
+def buy_to_cover_limit_order(amt, num_orders=1):
+    client.place_order(
+        account_id=secret_keys.account_id,
+        order_spec=equity_buy_to_cover_limit('META', num_orders, amt)
+            .set_duration(Duration.FILL_OR_KILL)
+            .build()
+    )
+    print("buy to cover order placed")
 
 def get_market_hours():
     date_format = "%Y-%m-%dT%H:%M:%S%z"

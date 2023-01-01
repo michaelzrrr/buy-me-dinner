@@ -1,10 +1,10 @@
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from test_strategy import StrategyTester
 
 import boto3
 import secret_keys
 import subprocess
-import test_strategy
 import tkinter as tk
 
 s3 = boto3.resource(
@@ -17,6 +17,8 @@ bucket_name = 'equities-streaming-data'
 
 class Application(tk.Tk):
     def __init__(self):
+        self.strategy_tester = StrategyTester(bucket_name)
+
         super().__init__()
         self.title("Buy Me Dinner")
         self.createWidgets()
@@ -24,9 +26,11 @@ class Application(tk.Tk):
         self.columnconfigure(tuple(range(3)), weight=1)
         self.rowconfigure(tuple(range(2)), weight=1)
 
+
+
     
     def createWidgets(self):
-        self.createActiveTradingFrame()
+        #self.createActiveTradingFrame()
 
         selections = []
         for obj in s3.Bucket(bucket_name).objects.all():
@@ -45,7 +49,7 @@ class Application(tk.Tk):
 
 
     def testStrategyPlot(self, filename):
-        datapoints, buys, sells, position, profit= test_strategy.tk_run_single_data_stream(filename)
+        datapoints, buys, sells, position, profit= self.strategy_tester.tk_run_single_data_stream(filename)
 
         fig = Figure()
         plot = fig.add_subplot(111)
