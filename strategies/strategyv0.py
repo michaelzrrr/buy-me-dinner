@@ -1,6 +1,8 @@
+from price_stream import buy_limit_order, sell_limit_order, short_sell_limit_order, buy_to_cover_limit_order, get_market_hours
+
+import time
 import sys
 import numpy as np
-from price_stream import buy_limit_order, sell_limit_order, short_sell_limit_order, buy_to_cover_limit_order
 
 class MyStrategy:
     def __init__ (self, window_size, mean_price, stagnation_threshold):
@@ -21,6 +23,8 @@ class MyStrategy:
 
         self.buy_price = -1
         self.sell_price = -1
+
+        self.end_trading = get_market_hours() - 3600
 
     def update_trading_data(self, bid, ask):
         if ask:

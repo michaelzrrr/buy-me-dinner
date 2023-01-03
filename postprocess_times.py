@@ -17,7 +17,3 @@ def post_process_csv(filename):
             writer.writerow(row)
 
     shutil.move(tempfile.name, filename)
-
-
-
-

@@ -30,14 +30,16 @@ FIELD_DATA = [StreamClient.LevelOneEquityFields.SYMBOL,
                 StreamClient.LevelOneEquityFields.ASK_PRICE, 
                 StreamClient.LevelOneEquityFields.TOTAL_VOLUME,
                 StreamClient.LevelOneEquityFields.OPEN_PRICE,
-                StreamClient.LevelOneEquityFields.QUOTE_TIME]
+                StreamClient.LevelOneEquityFields.QUOTE_TIME,
+                StreamClient.LevelOneEquityFields.ASK_SIZE,
+                StreamClient.LevelOneEquityFields.BID_SIZE]
 
 async def read_stream(handler_func, market_close):
     await stream_client.login()
     await stream_client.quality_of_service(StreamClient.QOSLevel.EXPRESS)
 
     stream_client.add_level_one_equity_handler(handler_func)
-    await stream_client.level_one_equity_subs(symbols=['META', 'AAPL'], fields=FIELD_DATA)
+    await stream_client.level_one_equity_subs(symbols=['META', 'AAPL', 'QQQ'], fields=FIELD_DATA)
 
     while time.time() < market_close:
         await stream_client.handle_message()
@@ -86,6 +88,8 @@ def get_market_hours():
     assert hours.status_code == httpx.codes.OK
 
     hours = hours.json()
+    if "EQ" not in hours["equity"]:
+        return 0
     end_time = datetime.strptime(hours["equity"]["EQ"]["sessionHours"]["regularMarket"][0]['end'], date_format)
     timestamp = (end_time - datetime(1970, 1, 1, tzinfo=timezone.utc)).total_seconds()
     return int(timestamp)

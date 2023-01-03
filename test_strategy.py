@@ -45,6 +45,10 @@ class StrategyTester:
 
         df["time"] = df["time"].apply(lambda x: datetime.strptime(x, date_format))
         
+        data = df.loc[:,"bid_price"].to_numpy()
+        print(data)
+        np.savez("price_data", data)
+
         buyx = []
         buyy = []
         sellx = []
@@ -63,13 +67,17 @@ class StrategyTester:
 
         if tk:
             return (df.loc[:,"time"], df.loc[:,"bid_price"]), (buyx, buyy), (sellx, selly), trader.position, trader.profit
-
+        
+        self.plot_strategy_data(df.loc[:,"time"], df.loc[:,"bid_price"], (buyx, buyy), (sellx, selly), title)
         print(trader.position, trader.profit)
+
+    def plot_strategy_data(self, time, price, buys, sells, title):
         plt.title(title)
-        plt.plot(df.loc[:,"time"], df.loc[:,"bid_price"])
-        plt.scatter(buyx, buyy, color='green', linewidths=3)
-        plt.scatter(sellx, selly, color='red', linewidths=3)
+        plt.plot(time, price)
+        plt.scatter(buys[0], buys[1], color="green", linewidths=3)
+        plt.scatter(sells[0], sells[1], color='red', linewidths=3)
         plt.show()
+
 
     def run_all_data_stream(self):
         for obj in self.s3.Bucket(self.bucket_name).objects.all():
@@ -93,3 +101,15 @@ class StrategyTester:
 
         trader = MyStrategy(5000, 117.345, 1000)
         return self.run_streaming_data(data, trader, filename, True)
+
+
+    def test(self, filename):
+        data = pd.read_csv(filename)
+     
+        trader = MyStrategy(5000, 117.345, 1000)
+        self.run_streaming_data(data, trader, filename)
+
+if __name__ == "__main__":
+    tester = StrategyTester('equities-streaming-data')
+    tester.test('data/META_12_28_22.csv')
+
